@@ -18,3 +18,15 @@ green2 <- rgb(200,201,181, max = 255)
 green3 <- rgb(222,223,197, max = 255)
 orange <- rgb(61,66,60, max = 255)
 aqua <- rgb(240,236,201, max = 255)
+
+####TIME SERIES####
+
+#tscs.lag <- function(data,unit,var,n=1){
+#  library(dplyr,quietly = T)
+#  lag.name <- paste('l',var[1],sep='')
+#  lagged.data <- data %>% group_by(unit[1]) %>% mutate(lag.name=lag(var,n=n))
+#  return(lagged.data)
+#}
+
+#lagging time series variables by 1 time unit
+#data %>% group_by(unit) %>% mutate(lvar=lag(var))
