@@ -1,3 +1,7 @@
+####GENERAL FUNCTIONS FOR R####
+##AUTHOR: SHOM MAZUMDER
+##
+
 #packages
 library(reshape)
 library(dplyr)
@@ -19,6 +23,61 @@ green3 <- rgb(222,223,197, max = 255)
 orange <- rgb(61,66,60, max = 255)
 aqua <- rgb(240,236,201, max = 255)
 
+####DATA PREP####
+
+stata.codebook <- function(x) {
+  cb <- data.frame(attr(x, "var.labels"))
+  rownames(cb) <- names(x)
+  cb
+}
+
+####PLOTTING####
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
 ####TIME SERIES####
 
 #tscs.lag <- function(data,unit,var,n=1){
@@ -30,3 +89,98 @@ aqua <- rgb(240,236,201, max = 255)
 
 #lagging time series variables by 1 time unit
 #data %>% group_by(unit) %>% mutate(lvar=lag(var))
+
+tslag <- function(x, d=1) {
+  x <- as.vector(x)
+  n <- length(x)
+  c(rep(NA,d),x)[1:n]
+}
+
+pastmin <- function(x) {
+  xt <- x
+  xt[!is.na(xt)] <- cummin(na.omit(x))
+  return(xt)
+}
+pastmax <- function(x) {
+  xt <- x
+  xt[!is.na(xt)] <- cummax(na.omit(x))
+  return(xt)
+}
+
+pastsum <- function(x) {
+  xt <- x
+  xt[!is.na(xt)] <- cumsum(na.omit(x))
+  return(xt)
+}
+
+pan.lag <- function(x,ind) {
+  unlist(tapply(x,ind, function(x) c(NA,x[-length(x)])))
+}
+
+pan.lag <- function(x, ind, lag = 1) {
+  unlist(tapply(x,ind, function(x) c(rep(NA, times = lag),x[-((length(x) - lag +1):length(x))])))
+}
+
+
+pan.sum <- function(x, ind) {
+  unlist(tapply(x,ind, function(x) {
+    xt <- x
+    xt[!is.na(xt)] <- cumsum(na.omit(x))
+    return(xt)
+  }))
+}
+
+pan.prod <- function(x,ind) {
+  unlist(tapply(x,ind, function(x) {
+    xt <- x
+    xt[!is.na(xt)] <- cumprod(na.omit(x))
+    return(xt)
+  }))
+}
+
+pan.mean <- function(x,ind) {
+  unlist(tapply(x, ind, function(x) rep(mean(x, na.rm=TRUE), length(x))))
+}
+
+pan.first <- function(x,ind) {
+  unlist(tapply(x, ind, function(x) rep(ifelse(any(x),which(x)[1],NA),length(x)) ))
+}
+
+
+pan.min <- function(x,ind) {
+  unlist(tapply(x, ind, function(x) rep(min(x, na.rm=TRUE), length(x))))
+}
+
+
+pan.cummin <- function(x, ind) {
+  unlist(tapply(x,ind, function(x) {
+    xt <- x
+    xt[!is.na(xt)] <- cummin(na.omit(x))
+    return(xt)
+  }))
+}
+
+####INSTRUMENTAL VARIABLES###
+
+#get first-stage f-stat
+getFStat <- function(ivobject){
+  sumiv <- summary(ivobject,diagnostics=T)
+  f.stat <- as.numeric(sumiv$diagnostics['Weak instruments','statistic'])
+  return(f.stat)
+}
+
+####DIFF IN DIFF####
+#function to create parallel trend plot
+parallel.trend <- function(dv,upper,lower){#need to generalize this
+  dv <- substitute(dv)
+  y.max <- substitute(upper)
+  y.min <- substitute(lower)
+  y.lab <- NULL
+  title <- NULL
+  parallel.plot <- ggplot(malesky.full.ag,aes(x=year,y=eval(dv),group=treatment,color=factor(treatment)))+
+    geom_point()+
+    geom_line()+
+    geom_vline(xintercept = 2009,size=1.5)+
+    geom_linerange(aes(ymax=eval(y.max),ymin=eval(y.min)))
+  return(parallel.plot)
+}
