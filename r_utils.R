@@ -31,6 +31,16 @@ stata.codebook <- function(x) {
   cb
 }
 
+####AUXILLARY####
+gotInternet <- function(){
+  if (is.character(RCurl::getURL("www.google.com"))) {
+    out <- TRUE
+  } else {
+    out <- FALSE
+  }
+}
+
+
 ####PLOTTING####
 # Multiple plot function
 #
@@ -77,6 +87,46 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
     }
   }
 }
+
+##Coefficient Plots##
+
+myCoefPlot <- function(models = models.list,names = model.names,coef.name = coef.name,se = NULL){
+  #takes in regression models, the name of the coefficient you want to plot, and an optional list of standard errors
+  #and returns a ggplot coefficient plot with 95% confidence intervals
+  
+  #initialize vector of regression coefficients
+  reg.coefs <- as.vector(unlist(lapply(models,FUN = function(x){return(coef(x)[coef.name])})))
+  
+  #initialize vector of regression standard errors
+  if(is.null(se)){
+    #regular standard errors
+    se.vector <- unlist(lapply(models,FUN = function(x){return(sqrt(diag(vcov(x)))[coef.name])}))
+  }else{
+    #user supplied standard errors
+    se.vector <- unlist(lapply(se,FUN = function(x){return(x[coef.name])}))
+  }
+  
+  #generate vector of 95% confidence intervals
+  reg.lower.95 <- reg.coefs-1.96*se.vector
+  reg.upper.95 <- reg.coefs+1.96*se.vector
+  
+  #generate dataframe for plotting in ggplot2
+  plot.df <- data.frame(cbind(reg.coefs,reg.lower.95,reg.upper.95,Model=names),row.names = NULL)
+  plot.df$reg.coefs <- as.numeric(as.character(plot.df$reg.coefs))
+  plot.df$reg.lower.95 <- as.numeric(as.character(plot.df$reg.lower.95))
+  plot.df$reg.upper.95 <- as.numeric(as.character(plot.df$reg.upper.95))
+  
+  #plot coefficients
+  reg.coef.plot <- plot.df %>% ggplot(aes(x=Model,y=reg.coefs,group=Model,colour=Model)) + 
+    geom_point() + 
+    geom_hline(yintercept = 0,size=0.5) + 
+    geom_linerange(aes(ymax = reg.upper.95,ymin=reg.lower.95))+
+    ylab('Estimated Coefficient')+
+    theme(text = element_text(size=15))
+  print(reg.coef.plot)
+  return(reg.coef.plot)
+}
+
 
 ####TIME SERIES####
 
