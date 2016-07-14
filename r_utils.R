@@ -23,22 +23,36 @@ green3 <- rgb(222,223,197, max = 255)
 orange <- rgb(61,66,60, max = 255)
 aqua <- rgb(240,236,201, max = 255)
 
+olive <- rgb(164,199,6,max = 255)
+orangejuice <- rgb(252,135,16,max = 255)
+flymetothemaroon <- rgb(159,25,22,max = 255)
+
 ####DATA PREP####
 
-stata.codebook <- function(x) {
+stata_codebook <- function(x) {
   cb <- data.frame(attr(x, "var.labels"))
   rownames(cb) <- names(x)
   cb
 }
 
 ####AUXILLARY####
-gotInternet <- function(){
+got_Internet <- function(){
   if (is.character(RCurl::getURL("www.google.com"))) {
     out <- TRUE
   } else {
     out <- FALSE
   }
 }
+
+####REGRESSION####
+
+get_rse <- function(models.list,hc='HC2'){
+  ##Purpose: this function takes in a list of regression models and outputs a list of robust SEs
+  se.list <- lapply(models.list,FUN = function(x){return(sqrt(diag(vcovHC(x,type = hc))))})
+  return(se.list)
+}
+
+####GIS####
 
 
 ####PLOTTING####
@@ -219,15 +233,30 @@ getFStat <- function(ivobject){
   return(f.stat)
 }
 
+#iv exclusion sensitivity analysis (Conley et al 2012, ReStat)
+#code built off of Jim Bisbee's function (http://static1.squarespace.com/static/559c0c95e4b0c021321c7435/t/56d4a18307eaa0ae80a870eb/1456775555253/handout-2-29.pdf)
+#exclusion_sens <- function(ivobject,dat,g){
+#  gamma <- seq(-1,1,0.1)
+#  newY <- dat$dv - g*dat$instrument
+#}
+#gamma <- seq(-1,1,.25)
+#ExclSens <- function(g) {
+#  newY <- dat$logpgp95 - g*dat$logem4
+#  coef(ivreg(newY~avexpr+f_brit+f_french,~logem4+f_brit+f_french,cbind(dat,newY)))[2]
+#}
+#sens.coefs <- sapply(gamma,ExclSens)
+#names(sens.coefs)<-gamma
+#round(sens.coefs,3)
+
 ####DIFF IN DIFF####
 #function to create parallel trend plot
-parallel.trend <- function(dv,upper,lower){#need to generalize this
+parallel.trend <- function(dv,upper,lower,df,treatment){#need to generalize this
   dv <- substitute(dv)
   y.max <- substitute(upper)
   y.min <- substitute(lower)
   y.lab <- NULL
   title <- NULL
-  parallel.plot <- ggplot(malesky.full.ag,aes(x=year,y=eval(dv),group=treatment,color=factor(treatment)))+
+  parallel.plot <- ggplot(df,aes(x=year,y=eval(dv),group=treatment,color=factor(treatment)))+
     geom_point()+
     geom_line()+
     geom_vline(xintercept = 2009,size=1.5)+
