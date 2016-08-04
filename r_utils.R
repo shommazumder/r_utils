@@ -137,7 +137,6 @@ myCoefPlot <- function(models = models.list,names = model.names,coef.name = coef
     geom_linerange(aes(ymax = reg.upper.95,ymin=reg.lower.95))+
     ylab('Estimated Coefficient')+
     theme(text = element_text(size=15))
-  print(reg.coef.plot)
   return(reg.coef.plot)
 }
 
