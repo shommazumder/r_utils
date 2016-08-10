@@ -1,6 +1,7 @@
 ####GENERAL FUNCTIONS FOR R####
 ##AUTHOR: SHOM MAZUMDER
 ##
+# this is a test comment
 
 #packages
 library(reshape)
