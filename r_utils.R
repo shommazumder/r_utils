@@ -229,7 +229,7 @@ pan.cummin <- function(x, ind) {
 getFStat <- function(ivobject){
   sumiv <- summary(ivobject,diagnostics=T)
   f.stat <- as.numeric(sumiv$diagnostics['Weak instruments','statistic'])
-  return(f.stat)
+  return(round(f.stat,digits = 2))
 }
 
 #iv exclusion sensitivity analysis (Conley et al 2012, ReStat)
