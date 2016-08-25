@@ -52,6 +52,11 @@ get_rse <- function(models.list,hc='HC2'){
   return(se.list)
 }
 
+ch.row <- function(name, yesno) {
+  ##Purpose: adds checkmarks to table
+  c(name, ifelse(yesno, "$\\checkmark$", ""))
+}
+
 ####GIS####
 
 
