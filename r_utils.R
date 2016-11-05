@@ -126,20 +126,27 @@ myCoefPlot <- function(models = models.list,names = model.names,coef.name = coef
   }
   
   #generate vector of 95% confidence intervals
-  reg.lower.95 <- reg.coefs-1.96*se.vector
-  reg.upper.95 <- reg.coefs+1.96*se.vector
+  reg.lower.95 <- reg.coefs-qnorm(p = 0.975)*se.vector
+  reg.upper.95 <- reg.coefs+qnorm(p = 0.975)*se.vector
+  
+  #generate vector of 90% confidence intervals
+  reg.lower.90 <- reg.coefs-qnorm(p = 0.95)*se.vector
+  reg.upper.90 <- reg.coefs+qnorm(p = 0.95)*se.vector
   
   #generate dataframe for plotting in ggplot2
-  plot.df <- data.frame(cbind(reg.coefs,reg.lower.95,reg.upper.95,Model=names),row.names = NULL)
+  plot.df <- data.frame(cbind(reg.coefs,reg.lower.95,reg.upper.95,reg.lower.90,reg.upper.90,Model=names),row.names = NULL)
   plot.df$reg.coefs <- as.numeric(as.character(plot.df$reg.coefs))
   plot.df$reg.lower.95 <- as.numeric(as.character(plot.df$reg.lower.95))
   plot.df$reg.upper.95 <- as.numeric(as.character(plot.df$reg.upper.95))
+  plot.df$reg.lower.90 <- as.numeric(as.character(plot.df$reg.lower.90))
+  plot.df$reg.upper.90 <- as.numeric(as.character(plot.df$reg.upper.90))
   
   #plot coefficients
   reg.coef.plot <- plot.df %>% ggplot(aes(x=Model,y=reg.coefs,group=Model,colour=Model)) + 
     geom_point() + 
     geom_hline(yintercept = 0,size=0.5) + 
     geom_linerange(aes(ymax = reg.upper.95,ymin=reg.lower.95))+
+    geom_linerange(aes(ymax = reg.upper.90,ymin=reg.lower.90),size=1)+
     ylab('Estimated Coefficient')+
     theme(text = element_text(size=15))
   return(reg.coef.plot)
