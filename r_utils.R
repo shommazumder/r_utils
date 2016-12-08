@@ -314,7 +314,7 @@ interaction_plot_continuous <- function(model, effect, moderator, interaction, v
   if (varcov == "default"){
     covMat = vcov(model)
   }else{
-    covMat = varcov
+    covMat = sandwich::vcovHC(model,type = "HC2")
   }
   
   # Extract the data frame of the model
