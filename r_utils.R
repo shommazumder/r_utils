@@ -477,3 +477,12 @@ interaction_plot_binary <- function(model, effect, moderator, interaction, varco
   abline(h=0, lty=3)
   
 }
+
+#### TABLES ####
+format_and_save_tab <- function(table,path){
+  #formats and saves stargazer tables
+  table <- gsub("\\{\\*\\}", "\\{\\\\dagger\\}", table)
+  table <- gsub("\\{\\*\\*\\}", "\\{\\*\\}", table)
+  table <- gsub("\\{\\*\\*\\*\\}", "\\{\\*\\*\\}", table)
+  cat(paste(table, collapse = "\n"), "\n",file = path)
+}
