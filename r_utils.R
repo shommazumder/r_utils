@@ -53,6 +53,14 @@ get_rse <- function(models.list,hc='HC2'){
   return(se.list)
 }
 
+get_cluster_se <- function(list.models,cluster){
+  ##Purpose: takes in a list of regression models and a formula for clustering and outputs list of clustered SEs
+  clust <- substitute(cluster)
+  vcovCL.list <- lapply(list.models,FUN = function(x){return(cluster.vcov(x,cluster = eval(clust)))})
+  seCL.list <- lapply(vcovCL.list,FUN = function(x){return(sqrt(diag(x)))})
+  return(seCL.list)
+}
+
 ch.row <- function(name, yesno) {
   ##Purpose: adds checkmarks to table
   c(name, ifelse(yesno, "$\\checkmark$", ""))
