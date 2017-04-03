@@ -380,22 +380,26 @@ interaction_plot_continuous <- function(model, effect, moderator, interaction, v
   min_y = min(lower_bound)
   
   # Make the histogram color
-  hist_col = makeTransparent("grey")
+  hist_col = makeTransparent("DodgerBlue")
   
   # Initialize plotting window
   plot(x=c(), y=c(), ylim=c(min_y, max_y), xlim=c(min_val, max_val), xlab=xlabel, ylab=ylabel, main=title,bty = "n")
   
   # Plot estimated effects
-  lines(y=delta_1, x=x_2)
-  lines(y=upper_bound, x=x_2, lty=2)
-  lines(y=lower_bound, x=x_2, lty=2)
+  lines(y=delta_1, x=x_2, col = "IndianRed",lwd = 3)
+  lines(y=upper_bound, x=x_2, lty=2, col = "IndianRed",lwd = 2)
+  lines(y=lower_bound, x=x_2, lty=2, col = "IndianRed",lwd = 2)
   
   # Add a dashed horizontal line for zero
   abline(h=0, lty=3)
   
+  # Shade confidence interval
+  #polygon(c(x_2,rev(x_2)),c(lower_bound,rev(upper_bound)),col = adjustcolor("DodgerBlue",alpha.f=0.5), border = FALSE)
+  
+  
   # Add a vertical line at the mean
   if (mean){
-    abline(v = mean(mod_frame[[moderator]]), lty=2, col="red")
+    abline(v = mean(mod_frame[[moderator]]), lty=2, col="IndianRed")
   }
   
   # Add a vertical line at the median
