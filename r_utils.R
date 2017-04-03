@@ -383,7 +383,7 @@ interaction_plot_continuous <- function(model, effect, moderator, interaction, v
   hist_col = makeTransparent("grey")
   
   # Initialize plotting window
-  plot(x=c(), y=c(), ylim=c(min_y, max_y), xlim=c(min_val, max_val), xlab=xlabel, ylab=ylabel, main=title)
+  plot(x=c(), y=c(), ylim=c(min_y, max_y), xlim=c(min_val, max_val), xlab=xlabel, ylab=ylabel, main=title,bty = "n")
   
   # Plot estimated effects
   lines(y=delta_1, x=x_2)
