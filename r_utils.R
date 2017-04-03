@@ -309,7 +309,7 @@ parallel.trend <- function(dv,upper,lower,df,treatment){#need to generalize this
 # title: Title of the plot
 # xlabel: Label of the X axis
 # ylabel: Label of the Y axis
-interaction_plot_continuous <- function(model, effect, moderator, interaction, varcov="default", minimum="min", maximum="max", incr="default", num_points = 50, conf=.95, mean=FALSE, median=FALSE, alph=80, rugplot=T, histogram=T, title="Marginal effects plot", xlabel="Value of moderator", ylabel="Estimated marginal coefficient"){
+interaction_plot_continuous <- function(model, effect, moderator, interaction, varcov = NULL, minimum="min", maximum="max", incr="default", num_points = 50, conf=.95, mean=FALSE, median=FALSE, alph=80, rugplot=T, histogram=T, title="Marginal effects plot", xlabel="Value of moderator", ylabel="Estimated marginal coefficient"){
   
   # Define a function to make colors transparent
   makeTransparent<-function(someColor, alpha=alph){
@@ -319,10 +319,10 @@ interaction_plot_continuous <- function(model, effect, moderator, interaction, v
   }
   
   # Extract Variance Covariance matrix
-  if (varcov == "default"){
+  if (is.null(varcov)){
     covMat = vcov(model)
   }else{
-    covMat = sandwich::vcovHC(model,type = "HC2")
+    covMat = varcov
   }
   
   # Extract the data frame of the model
