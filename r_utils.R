@@ -118,7 +118,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 ##Coefficient Plots##
 
-myCoefPlot <- function(models = models.list,names = model.names,coef.name = coef.name,se = NULL){
+myCoefPlot <- function(models = models.list,names = model.names,coef.name = coef.name,se = NULL,xlab="Model"){
   #takes in regression models, the name of the coefficient you want to plot, and an optional list of standard errors
   #and returns a ggplot coefficient plot with 95% confidence intervals
   
@@ -157,7 +157,8 @@ myCoefPlot <- function(models = models.list,names = model.names,coef.name = coef
     geom_linerange(aes(ymax = reg.upper.95,ymin=reg.lower.95))+
     geom_linerange(aes(ymax = reg.upper.90,ymin=reg.lower.90),size=1)+
     ylab('Estimated Coefficient')+
-    theme(text = element_text(size=15))
+    xlab(xlab)+
+    theme(text = element_text(size=15),legend.position = "none")
   return(reg.coef.plot)
 }
 
