@@ -222,6 +222,7 @@ parallel.trend <- function(dv,upper,lower,df,treatment){#need to generalize this
   return(parallel.plot)
 }
 
+
 ## Two-variable interaction plots in R
 ## Anton Strezhnev 
 ## 06/17/2013
