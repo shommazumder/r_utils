@@ -207,7 +207,7 @@ getFStat <- function(ivobject){
 #round(sens.coefs,3)
 
 ####DIFF IN DIFF####
-#function to create parallel trend plot
+#function to create parallel trend plot (NEEDS TO BE FIXED)
 parallel.trend <- function(dv,upper,lower,df,treatment){#need to generalize this
   dv <- substitute(dv)
   y.max <- substitute(upper)
