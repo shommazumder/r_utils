@@ -536,3 +536,74 @@ format_and_save_tab <- function(table,path){
   table <- gsub("\\{\\*\\*\\*\\}", "\\{\\*\\*\\}", table)
   cat(paste(table, collapse = "\n"), "\n",file = path)
 }
+
+#### MY REGRESSION DISCONTINUITY FUNCTIONS ####
+
+plot_rdd_binned <- function(data,forcing,outcome,cutoff = 0,weights = NULL,
+                            ylab = "Outcome",xlab = "Running Variable",
+                            bw = NULL,se = T){
+  #requirements
+  require(lazyeval)
+  
+  #check conditions
+  if(is.null(data)){
+    stop("Please provide a dataframe.")
+  }
+  if(is.null(forcing)){
+    stop("Please provide a forcing variable.")
+  }
+  if(is.null(outcome)){
+    stop("Please provide an outcome variable.")
+  }
+  if(!is_character(forcing)){
+    stop("Forcing variable must be provided as a string.")
+  }
+  if(!is_character(outcome)){
+    stop("Outcome variable must be provided as a string.")
+  }
+  if(!is.null(weights) & !is_character(weights)){
+    stop("Outcome variable must be provided as a string.")
+  }
+  #check if running variable is discrete (TO-DO)
+  #ASSUMING DATA IS DISCRETE FOR NOW
+  length.unique.forcing <- nrow(unique(data[,forcing]))
+  length.forcing <- nrow(data[,forcing])
+  if(is.null(weights)){ #no weights provided
+    binned_df <- data %>% 
+      group_by_(forcing) %>%
+      dplyr::summarize_(meanoutcome = interp(~mean(var,na.rm = T),var = as.name(outcome)),
+                        size.bin = "n()")
+    
+    #interp(~n_distinct(v), v=as.name(uniq.var))
+  }else{
+    binned_df <- data %>% 
+      group_by_(forcing) %>%
+      dplyr::summarize_(meanoutcome = interp(~weighted.mean(var,w,na.rm = T),
+                                             var = as.name(outcome),w = as.name(weights)),
+                        size.bin = "n()")
+  }
+  
+  #set bandwidth and filter data
+  if(is.null(bw)){
+    bw <- max(data[,forcing]) - min(data[,forcing])
+  }
+  binned_df <- binned_df %>%
+    dplyr::mutate_(absforcing = interp(~abs(var),var = as.name(forcing)),
+                   running = interp(~var,var = as.name(forcing))) %>%
+    dplyr::filter(absforcing <= bw)
+  
+  #now plot
+  p <- binned_df %>%
+    ggplot(aes(x = running, y = meanoutcome,size = size.bin,weight = size.bin)) + 
+    geom_point(col = "IndianRed3",fill = "grey30",shape = 21) + 
+    geom_smooth(data = subset(binned_df, running >= cutoff),se = T,color = "dodgerblue") + 
+    geom_smooth(data = subset(binned_df, running < cutoff),se = T,color = "dodgerblue") + 
+    geom_vline(xintercept = cutoff) + 
+    theme_bw() +
+    theme(legend.position="none") + 
+    xlab(xlab) + 
+    ylab(ylab)
+  
+  return(p)
+  
+}
