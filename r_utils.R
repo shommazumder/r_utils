@@ -592,6 +592,9 @@ plot_rdd_binned <- function(data,forcing,outcome,cutoff = 0,weights = NULL,
                    running = interp(~var,var = as.name(forcing))) %>%
     dplyr::filter(absforcing <= bw)
   
+  #add outcome labels to data
+  binned_df$outcomelabel <- ylab
+  
   #now plot
   p <- binned_df %>%
     ggplot(aes(x = running, y = meanoutcome,size = size.bin,weight = size.bin)) + 
@@ -604,6 +607,9 @@ plot_rdd_binned <- function(data,forcing,outcome,cutoff = 0,weights = NULL,
     xlab(xlab) + 
     ylab(ylab)
   
-  return(p)
+  return(list(
+    plot_out = p,
+    binned_df = binned_df
+  ))
   
 }
