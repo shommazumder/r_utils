@@ -3,10 +3,12 @@
 ##
 
 #packages
-library(reshape)
-library(dplyr)
-library(ggplot2)
-library(ggthemes)
+require(reshape)
+require(dplyr)
+require(ggplot2)
+require(RCurl)
+require(sandwich)
+require(multiwayvcov)
 
 #### GGPLOT THEMES ####
 
@@ -55,7 +57,7 @@ stata_codebook <- function(x) {
 
 ####AUXILLARY####
 got_Internet <- function(){
-  if (is.character(RCurl::getURL("www.google.com"))) {
+  if (is.character(getURL("www.google.com"))) {
     out <- TRUE
   } else {
     out <- FALSE
@@ -179,88 +181,6 @@ myCoefPlot <- function(models = models.list,names = model.names,coef.name = coef
   return(reg.coef.plot)
 }
 
-
-####TIME SERIES####
-
-#tscs.lag <- function(data,unit,var,n=1){
-#  library(dplyr,quietly = T)
-#  lag.name <- paste('l',var[1],sep='')
-#  lagged.data <- data %>% group_by(unit[1]) %>% mutate(lag.name=lag(var,n=n))
-#  return(lagged.data)
-#}
-
-#lagging time series variables by 1 time unit
-#data %>% group_by(unit) %>% mutate(lvar=lag(var))
-
-tslag <- function(x, d=1) {
-  x <- as.vector(x)
-  n <- length(x)
-  c(rep(NA,d),x)[1:n]
-}
-
-pastmin <- function(x) {
-  xt <- x
-  xt[!is.na(xt)] <- cummin(na.omit(x))
-  return(xt)
-}
-pastmax <- function(x) {
-  xt <- x
-  xt[!is.na(xt)] <- cummax(na.omit(x))
-  return(xt)
-}
-
-pastsum <- function(x) {
-  xt <- x
-  xt[!is.na(xt)] <- cumsum(na.omit(x))
-  return(xt)
-}
-
-pan.lag <- function(x,ind) {
-  unlist(tapply(x,ind, function(x) c(NA,x[-length(x)])))
-}
-
-pan.lag <- function(x, ind, lag = 1) {
-  unlist(tapply(x,ind, function(x) c(rep(NA, times = lag),x[-((length(x) - lag +1):length(x))])))
-}
-
-
-pan.sum <- function(x, ind) {
-  unlist(tapply(x,ind, function(x) {
-    xt <- x
-    xt[!is.na(xt)] <- cumsum(na.omit(x))
-    return(xt)
-  }))
-}
-
-pan.prod <- function(x,ind) {
-  unlist(tapply(x,ind, function(x) {
-    xt <- x
-    xt[!is.na(xt)] <- cumprod(na.omit(x))
-    return(xt)
-  }))
-}
-
-pan.mean <- function(x,ind) {
-  unlist(tapply(x, ind, function(x) rep(mean(x, na.rm=TRUE), length(x))))
-}
-
-pan.first <- function(x,ind) {
-  unlist(tapply(x, ind, function(x) rep(ifelse(any(x),which(x)[1],NA),length(x)) ))
-}
-
-
-pan.min <- function(x,ind) {
-  unlist(tapply(x, ind, function(x) rep(min(x, na.rm=TRUE), length(x))))
-}
-
-
-pan.cummin <- function(x, ind) {
-  unlist(tapply(x,ind, function(x) {
-    xt <- x
-    xt[!is.na(xt)] <- cummin(na.omit(x))
-    return(xt)
-  }))
-}
 
 ####INSTRUMENTAL VARIABLES###
 
